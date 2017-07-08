@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="RemindMe.Views.EditReminderPage"
+             Title="Edit reminder"
+             NavigationPage.HasBackButton="False">
+    
+    <StackLayout
+        Padding="10">
+        
+        <Label
+            Text="Title"
+            TextColor="CornflowerBlue"
+            FontSize="Small"/>
+        <Entry
+            Text="{Binding TitleInput, Mode=TwoWay}"/>
+
+        <Label
+            Text="Description"
+            TextColor="CornflowerBlue"
+            FontSize="Small"/>
+        <Editor
+            Text="{Binding DescriptionInput, Mode=TwoWay}"/>
+
+        <Label
+            Text="When to remind"
+            TextColor="CornflowerBlue"
+            FontSize="Small"/>
+        <Grid
+            HorizontalOptions="FillAndExpand">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TimePicker
+                Grid.Row="0"
+                Grid.Column="0"
+                Time="{Binding TimeInput, Mode=TwoWay}"/>
+            <DatePicker
+                Grid.Row="0"
+                Grid.Column="1"
+                Date="{Binding DateInput, Mode=TwoWay}"/>
+        </Grid>
+        
+
+        <Button 
+            Text="Save"
+            Command="{Binding SaveEditCommand}"/>
+        <Button Text="Cancel"
+                Command="{Binding CancelEditCommand}"/>
+    </StackLayout>
+    
+</ContentPage>

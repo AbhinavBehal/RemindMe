@@ -41,7 +41,7 @@ namespace RemindMe.Models
             }
         }
 
-        public DateTime Time
+        public DateTime Date
         {
             get => _time;
             set

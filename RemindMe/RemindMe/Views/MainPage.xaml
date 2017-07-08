@@ -2,75 +2,27 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:RemindMe"
-             x:Class="RemindMe.MainPage">
+             x:Class="RemindMe.MainPage"
+             Title="RemindMe">
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-
-        <Grid
-            Grid.Row="0"
-            Grid.Column="0"
-            Padding="10">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Label
-                Grid.Row="0"
-                Grid.Column="0"
-                Text="RemindMe"
-                FontSize="Large"
-                VerticalTextAlignment="Center"/>
-            <Button
-                Grid.Row="0"
-                Grid.Column="1"
-                Text="Add reminder"
-                Command="{Binding AddReminderCommand}"/>
-        </Grid>
-
+    <StackLayout>
+        <Button
+            HorizontalOptions="FillAndExpand"
+            Text="Add reminder"
+            Command="{Binding AddReminderCommand}"/>
         <ListView
-            Grid.Row="1"
-            Grid.Column="0"
+            HorizontalOptions="FillAndExpand"
             ItemsSource="{Binding RemindersList, Mode=TwoWay}"
             SelectedItem="{Binding SelectedReminder, Mode=TwoWay}"
             HasUnevenRows="True">
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <ViewCell>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Label
-                                Grid.Row="0"
-                                Grid.Column="0"
-                                Text="{Binding Title}"
-                                Margin="2"/>
-                            <Label
-                                Grid.Row="1"
-                                Grid.Column="0"
-                                Text="{Binding Description}"
-                                LineBreakMode="TailTruncation"
-                                WidthRequest="100"/>
-                        </Grid>
-                    </ViewCell>
+                    <TextCell
+                        Text="{Binding Title}"
+                        Detail="{Binding Description}"/>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-
-    </Grid>
+    </StackLayout>
 
 </ContentPage>
