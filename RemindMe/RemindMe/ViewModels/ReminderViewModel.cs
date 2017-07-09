@@ -26,8 +26,10 @@ namespace RemindMe.ViewModels
 
         public ICommand AddReminderCommand { get; private set; }
         public ICommand SubmitReminderCommand { get; private set; }
+
         public ICommand SaveEditCommand { get; private set; }
         public ICommand CancelEditCommand { get; private set; }
+        public ICommand DeleteReminderCommand { get; private set; }
 
         public ReminderViewModel()
         {
@@ -37,9 +39,11 @@ namespace RemindMe.ViewModels
                 DateTime.Now));
 
             AddReminderCommand = new Command(AddReminder);
-            SubmitReminderCommand = new Command(SubmitReminder);
+            SubmitReminderCommand = new Command(SubmitReminder, () => !string.IsNullOrWhiteSpace(TitleInput));
+
             SaveEditCommand = new Command(SaveEdit);
             CancelEditCommand = new Command(CancelEdit);
+            DeleteReminderCommand = new Command(DeleteReminder);
 
             ClearFields();
         }
@@ -84,6 +88,18 @@ namespace RemindMe.ViewModels
             ClearFields();
             await Application.Current.MainPage.Navigation.PopAsync();
         }
+        
+        private async void DeleteReminder()
+        {
+            var result = await Application.Current.MainPage.DisplayAlert("Delete reminder", "Are you sure?", "Delete", "Cancel");
+            if(result)
+            {
+                await Task.Run(() => _remindersList.Remove(SelectedReminder));
+                SelectedReminder = null;
+                ClearFields();
+                await Application.Current.MainPage.Navigation.PopAsync();
+            }
+        }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -127,6 +143,7 @@ namespace RemindMe.ViewModels
             {
                 _titleInput = value;
                 OnPropertyChanged();
+                ((Command)SubmitReminderCommand).ChangeCanExecute();
             }
         }
 

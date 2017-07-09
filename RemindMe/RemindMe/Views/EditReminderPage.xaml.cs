@@ -19,5 +19,11 @@ namespace RemindMe.Views
             BindingContext = vm;
             _vm = vm;
 		}
+
+        protected override bool OnBackButtonPressed()
+        {
+            _vm.CancelEditCommand.Execute(null);
+            return base.OnBackButtonPressed();
+        }
     }
 }

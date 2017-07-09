@@ -48,9 +48,28 @@
 
         <Button 
             Text="Save"
-            Command="{Binding SaveEditCommand}"/>
-        <Button Text="Cancel"
+            Command="{Binding SaveEditCommand}"
+            BackgroundColor="#5CB85C"/>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button 
+                Grid.Row="0"
+                Grid.Column="0"
+                Text="Cancel"
                 Command="{Binding CancelEditCommand}"/>
+            <Button
+                Grid.Row="0"
+                Grid.Column="1"
+                Text="Delete"
+                Command="{Binding DeleteReminderCommand}"
+                BackgroundColor="#D9534F"/>
+        </Grid>
     </StackLayout>
     
 </ContentPage>
