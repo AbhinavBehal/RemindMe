@@ -11,6 +11,9 @@
             Text="Add reminder"
             Command="{Binding AddReminderCommand}"/>
         <ListView
+            IsPullToRefreshEnabled="True"
+            IsRefreshing="{Binding IsRefreshing}"
+            RefreshCommand="{Binding PullRemindersCommand}"
             HorizontalOptions="FillAndExpand"
             ItemsSource="{Binding RemindersList, Mode=TwoWay}"
             SelectedItem="{Binding SelectedReminder, Mode=TwoWay}"

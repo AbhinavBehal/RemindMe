@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -18,7 +19,7 @@ namespace RemindMe
 
 		protected override void OnStart ()
 		{
-			// Handle when your app starts
+            // Handle when your app starts
 		}
 
 		protected override void OnSleep ()

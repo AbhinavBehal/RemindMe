@@ -22,30 +22,6 @@
         <Editor
             Text="{Binding DescriptionInput, Mode=TwoWay}"/>
 
-        <Label
-            Text="When to remind"
-            TextColor="CornflowerBlue"
-            FontSize="Small"/>
-        <Grid
-            HorizontalOptions="FillAndExpand">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <TimePicker
-                Grid.Row="0"
-                Grid.Column="0"
-                Time="{Binding TimeInput, Mode=TwoWay}"/>
-            <DatePicker
-                Grid.Row="0"
-                Grid.Column="1"
-                Date="{Binding DateInput, Mode=TwoWay}"/>
-        </Grid>
-        
-
         <Button 
             Text="Save"
             Command="{Binding SaveEditCommand}"

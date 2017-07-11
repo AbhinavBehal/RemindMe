@@ -19,8 +19,8 @@ namespace RemindMe.ViewModels
 
         private string _titleInput;
         private string _descriptionInput;
-        private DateTime _dateInput;
-        private TimeSpan _timeInput;
+
+        private bool _isRefreshing;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -31,79 +31,95 @@ namespace RemindMe.ViewModels
         public ICommand CancelEditCommand { get; private set; }
         public ICommand DeleteReminderCommand { get; private set; }
 
+        public ICommand PullRemindersCommand { get; private set; }
+
         public ReminderViewModel()
         {
-            _remindersList = new ObservableCollection<Reminder>();
-            _remindersList.Add(new Reminder("Lorem Ipsum", 
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua", 
-                DateTime.Now));
+            AddReminderCommand = new Command(async () => await AddReminder());
+            SubmitReminderCommand = new Command(async () => await SubmitReminder(), () => !string.IsNullOrWhiteSpace(TitleInput));
 
-            AddReminderCommand = new Command(AddReminder);
-            SubmitReminderCommand = new Command(SubmitReminder, () => !string.IsNullOrWhiteSpace(TitleInput));
+            SaveEditCommand = new Command(async () => await SaveEdit());
+            CancelEditCommand = new Command(async () => await CancelEdit());
+            DeleteReminderCommand = new Command(async () => await DeleteReminder());
 
-            SaveEditCommand = new Command(SaveEdit);
-            CancelEditCommand = new Command(CancelEdit);
-            DeleteReminderCommand = new Command(DeleteReminder);
+            PullRemindersCommand = new Command(async () => await PullReminders());
 
-            ClearFields();
+            PullRemindersCommand.Execute(null);
+        }
+
+        private async Task PullReminders()
+        {
+            IsRefreshing = true;
+            var result = await DatabaseManager.Instance.GetReminders();
+            RemindersList = new ObservableCollection<Reminder>(result);
+            IsRefreshing = false;
         }
 
         private void ClearFields()
         {
             TitleInput = "";
             DescriptionInput = "";
-            DateInput = DateTime.Now;
-            TimeInput = DateInput.TimeOfDay;
         }
 
-        private async void AddReminder()
+        private async Task AddReminder()
         {
             await Application.Current.MainPage.Navigation.PushAsync(new AddReminderPage(this));
         }
         
-        private async void SubmitReminder()
+        private async Task SubmitReminder()
         {
-            await Task.Run(
-                () => _remindersList.Add(new Reminder(TitleInput, DescriptionInput, DateInput)));
-
+            await DatabaseManager.Instance.PostReminder(new Reminder(TitleInput, DescriptionInput));
             await Application.Current.MainPage.Navigation.PopAsync();
-
             ClearFields();
+            PullRemindersCommand.Execute(null);
         }
 
-        private async void SaveEdit()
+        private async Task SaveEdit()
         {
             SelectedReminder.Title = TitleInput;
             SelectedReminder.Description = DescriptionInput;
-            SelectedReminder.Date = DateInput;
 
+            await DatabaseManager.Instance.UpdateReminder(SelectedReminder);
             SelectedReminder = null;
             ClearFields();
             await Application.Current.MainPage.Navigation.PopAsync();
+            PullRemindersCommand.Execute(null);
         }
         
-        private async void CancelEdit()
+        private async Task CancelEdit()
         {
             SelectedReminder = null;
             ClearFields();
             await Application.Current.MainPage.Navigation.PopAsync();
         }
         
-        private async void DeleteReminder()
+        private async Task DeleteReminder()
         {
             var result = await Application.Current.MainPage.DisplayAlert("Delete reminder", "Are you sure?", "Delete", "Cancel");
             if(result)
             {
-                await Task.Run(() => _remindersList.Remove(SelectedReminder));
+                await DatabaseManager.Instance.DeleteReminder(SelectedReminder);
                 SelectedReminder = null;
                 ClearFields();
                 await Application.Current.MainPage.Navigation.PopAsync();
+                
+                PullRemindersCommand.Execute(null);
             }
         }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public bool IsRefreshing
+        {
+            get => _isRefreshing;
+            set
+            {
+                _isRefreshing = value;
+                OnPropertyChanged();
+            }
         }
 
         public Reminder SelectedReminder
@@ -118,8 +134,6 @@ namespace RemindMe.ViewModels
                 {
                     TitleInput = SelectedReminder.Title;
                     DescriptionInput = SelectedReminder.Description;
-                    DateInput = SelectedReminder.Date;
-                    TimeInput = SelectedReminder.Date.TimeOfDay;
 
                     Application.Current.MainPage.Navigation.PushAsync(new EditReminderPage(this));
                 }
@@ -154,28 +168,6 @@ namespace RemindMe.ViewModels
             {
                 _descriptionInput = value;
                 OnPropertyChanged();
-            }
-        }
-
-        public DateTime DateInput
-        {
-            get => _dateInput;
-            set
-            {
-                _dateInput = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public TimeSpan TimeInput
-        {
-            get => _timeInput;
-            set
-            {
-                _timeInput = value;
-                OnPropertyChanged();
-
-                DateInput = new DateTime(DateInput.Year, DateInput.Month, DateInput.Day, TimeInput.Hours, TimeInput.Minutes, TimeInput.Seconds);
             }
         }
     }

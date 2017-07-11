@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -10,17 +11,19 @@ namespace RemindMe.Models
     {
         private string _title;
         private string _description;
-        private DateTime _time;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public Reminder(string title, string description, DateTime time)
+        public Reminder(string title, string description)
         {
             _title = title;
             _description = description;
-            _time = time;
         }
 
+        [JsonProperty(PropertyName = "Id")]
+        public string Id { get; set; }
+
+        [JsonProperty(PropertyName = "Title")]
         public string Title
         {
             get => _title;
@@ -31,22 +34,13 @@ namespace RemindMe.Models
             }
         }
 
+        [JsonProperty(PropertyName = "Description")]
         public string Description
         {
             get => _description;
             set
             {
                 _description = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public DateTime Date
-        {
-            get => _time;
-            set
-            {
-                _time = value;
                 OnPropertyChanged();
             }
         }
