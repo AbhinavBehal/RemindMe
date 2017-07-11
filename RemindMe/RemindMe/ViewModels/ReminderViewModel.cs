@@ -19,8 +19,11 @@ namespace RemindMe.ViewModels
 
         private string _titleInput;
         private string _descriptionInput;
+        private string _cachedTitle;
+        private string _cachedDescription;
 
         private bool _isRefreshing;
+        private bool _canRevert;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -33,18 +36,47 @@ namespace RemindMe.ViewModels
 
         public ICommand PullRemindersCommand { get; private set; }
 
+        public ICommand SpellcheckCommand { get; private set; }
+        public ICommand RevertSpellcheckCommand { get; private set; }
+
         public ReminderViewModel()
         {
-            AddReminderCommand = new Command(async () => await AddReminder());
-            SubmitReminderCommand = new Command(async () => await SubmitReminder(), () => !string.IsNullOrWhiteSpace(TitleInput));
+            _canRevert = false;
 
-            SaveEditCommand = new Command(async () => await SaveEdit());
-            CancelEditCommand = new Command(async () => await CancelEdit());
-            DeleteReminderCommand = new Command(async () => await DeleteReminder());
-
-            PullRemindersCommand = new Command(async () => await PullReminders());
+            AddReminderCommand          = new Command(async () => await AddReminder());
+            SubmitReminderCommand       = new Command(async () => await SubmitReminder(), () => !string.IsNullOrWhiteSpace(TitleInput));
+            SaveEditCommand             = new Command(async () => await SaveEdit());
+            CancelEditCommand           = new Command(async () => await CancelEdit());
+            DeleteReminderCommand       = new Command(async () => await DeleteReminder());
+            PullRemindersCommand        = new Command(async () => await PullReminders());
+            SpellcheckCommand           = new Command(async () => await Spellcheck(), () => !string.IsNullOrWhiteSpace(TitleInput) || !string.IsNullOrWhiteSpace(DescriptionInput));
+            RevertSpellcheckCommand     = new Command(RevertSpellcheck, () => _canRevert);
 
             PullRemindersCommand.Execute(null);
+        }
+
+        private async Task Spellcheck()
+        {
+            _cachedTitle = TitleInput;
+            _cachedDescription = DescriptionInput;
+
+            var titleChecked = await Spellchecker.Check(TitleInput);
+            var descriptionChecked = await Spellchecker.Check(DescriptionInput);
+
+            _canRevert = !string.Equals(TitleInput, titleChecked) || !string.Equals(DescriptionInput, descriptionChecked);
+            TitleInput = titleChecked;
+            DescriptionInput = descriptionChecked;
+
+            ((Command)RevertSpellcheckCommand).ChangeCanExecute();
+        }
+
+        private void RevertSpellcheck()
+        {
+            TitleInput = _cachedTitle;
+            DescriptionInput = _cachedDescription;
+
+            _canRevert = false;
+            ((Command)RevertSpellcheckCommand).ChangeCanExecute();
         }
 
         private async Task PullReminders()
@@ -59,6 +91,9 @@ namespace RemindMe.ViewModels
         {
             TitleInput = "";
             DescriptionInput = "";
+            _cachedTitle = "";
+            _cachedDescription = "";
+            _canRevert = false;
         }
 
         private async Task AddReminder()
@@ -158,6 +193,7 @@ namespace RemindMe.ViewModels
                 _titleInput = value;
                 OnPropertyChanged();
                 ((Command)SubmitReminderCommand).ChangeCanExecute();
+                ((Command)SpellcheckCommand).ChangeCanExecute();
             }
         }
 
@@ -168,6 +204,7 @@ namespace RemindMe.ViewModels
             {
                 _descriptionInput = value;
                 OnPropertyChanged();
+                ((Command)SpellcheckCommand).ChangeCanExecute();
             }
         }
     }

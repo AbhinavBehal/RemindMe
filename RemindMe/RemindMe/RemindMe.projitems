@@ -11,6 +11,8 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)DatabaseManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Reminder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\SpellcheckModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Spellchecker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ReminderViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Views\AddReminderPage.xaml.cs">
       <SubType>Code</SubType>

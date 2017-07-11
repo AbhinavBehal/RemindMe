@@ -20,6 +20,21 @@
         <Editor
             Text="{Binding DescriptionInput, Mode=TwoWay}"/>
 
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button
+                Grid.Column="0"
+                Text="Spellcheck"
+                Command="{Binding SpellcheckCommand}"/>
+            <Button
+                Grid.Column="1"
+                Text="Revert"
+                Command="{Binding RevertSpellcheckCommand}"/>
+        </Grid>
+
         <Button 
             Text="Add"
             Command="{Binding SubmitReminderCommand}"/>
