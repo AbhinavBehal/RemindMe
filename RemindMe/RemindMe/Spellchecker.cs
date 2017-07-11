@@ -51,6 +51,9 @@ namespace RemindMe
                 index = token.Offset + token.Token.Length;
             }
 
+            //Append the remaining text
+            builder.Append(text.Substring(index, text.Length - index));
+
             return builder.ToString();
         }
     }
