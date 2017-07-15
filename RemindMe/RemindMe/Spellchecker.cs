@@ -13,7 +13,7 @@ namespace RemindMe
     {
         public static async Task<string> Check(string text)
         {
-            if (string.IsNullOrWhiteSpace(text))
+            /*if (string.IsNullOrWhiteSpace(text))
                 return text;
 
             var textToSend = text.Replace(' ', '+');
@@ -54,7 +54,9 @@ namespace RemindMe
             //Append the remaining text
             builder.Append(text.Substring(index, text.Length - index));
 
-            return builder.ToString();
+            return builder.ToString();*/
+            await Task.Delay(1000);
+            return text;
         }
     }
 }

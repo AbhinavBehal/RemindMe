@@ -2,65 +2,61 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="RemindMe.Views.EditReminderPage"
-             Title="Edit reminder"
-             NavigationPage.HasBackButton="False">
-    
+             Title="Edit reminder">
+
     <StackLayout
         Padding="10">
-        
+
         <Label
             Text="Title"
             TextColor="CornflowerBlue"
             FontSize="Small"/>
-        <Entry
-            Text="{Binding TitleInput, Mode=TwoWay}"/>
+
+        <StackLayout
+            Orientation="Horizontal">
+            <Entry
+                Text="{Binding TitleInput}"
+                HorizontalOptions="FillAndExpand"/>
+            <ActivityIndicator
+                HorizontalOptions="End"
+                VerticalOptions="Center"
+                HeightRequest="30"
+                IsVisible="{Binding IsSpellchecking}"
+                IsRunning="{Binding IsSpellchecking}"/>
+        </StackLayout>
 
         <Label
             Text="Description"
             TextColor="CornflowerBlue"
             FontSize="Small"/>
-        <Editor
-            Text="{Binding DescriptionInput, Mode=TwoWay}"/>
+        <StackLayout
+            Orientation="Horizontal">
+            <Entry
+                Text="{Binding DescriptionInput}"
+                HorizontalOptions="FillAndExpand"/>
+            <ActivityIndicator
+                HorizontalOptions="End"
+                VerticalOptions="Center"
+                HeightRequest="30"
+                IsVisible="{Binding IsSpellchecking}"
+                IsRunning="{Binding IsSpellchecking}"/>
+        </StackLayout>
 
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Button
-                Grid.Column="0"
-                Text="Spellcheck"
-                Command="{Binding SpellcheckCommand}"/>
-            <Button
-                Grid.Column="1"
-                Text="Revert"
-                Command="{Binding RevertSpellcheckCommand}"/>
-        </Grid>
+        <Button
+            Grid.Column="0"
+            Text="{Binding SpellcheckLabel}"
+            Command="{Binding SpellcheckCommand}"/>
 
         <Button 
             Text="Save"
-            Command="{Binding SaveEditCommand}"
+            Command="{Binding SubmitReminderCommand}"
             BackgroundColor="#5CB85C"/>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Button 
-                Grid.Row="0"
-                Grid.Column="0"
-                Text="Cancel"
-                Command="{Binding CancelEditCommand}"/>
-            <Button
-                Grid.Row="0"
-                Grid.Column="1"
-                Text="Delete"
-                Command="{Binding DeleteReminderCommand}"
-                BackgroundColor="#D9534F"/>
-        </Grid>
+
+        <Button
+            Text="Delete"
+            Command="{Binding DeleteReminderCommand}"
+            BackgroundColor="#D9534F"/>
+        
     </StackLayout>
     
 </ContentPage>

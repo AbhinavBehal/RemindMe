@@ -9,6 +9,12 @@ namespace RemindMe
 {
     public class DatabaseManager
     {
+        public delegate void InsertEventHandler();
+        public event InsertEventHandler InsertEvent;
+
+        public delegate void RemoveEventHandler();
+        public event RemoveEventHandler RemoveEvent;
+
         private static DatabaseManager _instance;
         private MobileServiceClient _client;
         private IMobileServiceTable<Reminder> _reminderTable;
@@ -40,6 +46,7 @@ namespace RemindMe
         public async Task PostReminder(Reminder reminder)
         {
             await _reminderTable.InsertAsync(reminder);
+            InsertEvent?.Invoke();
         }
 
         public async Task UpdateReminder(Reminder reminder)
@@ -50,6 +57,7 @@ namespace RemindMe
         public async Task DeleteReminder(Reminder reminder)
         {
             await _reminderTable.DeleteAsync(reminder);
+            RemoveEvent?.Invoke();
         }
     }
 }

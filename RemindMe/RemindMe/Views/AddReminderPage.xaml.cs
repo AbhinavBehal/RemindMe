@@ -12,10 +12,10 @@ namespace RemindMe.Views
 {
 	public partial class AddReminderPage : ContentPage
 	{
-		public AddReminderPage (ReminderViewModel vm)
+		public AddReminderPage (ReminderDetailViewModel detailViewModel)
 		{
 			InitializeComponent ();
-            BindingContext = vm;
+            BindingContext = detailViewModel;
 		}
 	}
 }

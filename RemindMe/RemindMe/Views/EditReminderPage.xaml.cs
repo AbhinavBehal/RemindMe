@@ -10,20 +10,12 @@ using Xamarin.Forms.Xaml;
 
 namespace RemindMe.Views
 {
-	public partial class EditReminderPage : ContentPage
-	{
-        private ReminderViewModel _vm;
-		public EditReminderPage (ReminderViewModel vm)
-		{
-			InitializeComponent ();
-            BindingContext = vm;
-            _vm = vm;
-		}
-
-        protected override bool OnBackButtonPressed()
+    public partial class EditReminderPage : ContentPage
+    {
+        public EditReminderPage(ReminderDetailViewModel detailViewModel)
         {
-            _vm.CancelEditCommand.Execute(null);
-            return base.OnBackButtonPressed();
+            InitializeComponent();
+            BindingContext = detailViewModel;
         }
     }
 }
