@@ -11,13 +11,15 @@ namespace RemindMe.Models
     {
         private string _title;
         private string _description;
+        private DateTime _date;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public Reminder(string title, string description)
+        public Reminder(string title, string description, DateTime date)
         {
             _title = title;
             _description = description;
+            _date = date;
         }
 
         [JsonProperty(PropertyName = "Id")]
@@ -43,6 +45,31 @@ namespace RemindMe.Models
                 _description = value;
                 OnPropertyChanged();
             }
+        }
+
+        [JsonProperty(PropertyName = "RemindTime")]
+        public DateTime Date
+        {
+            get => _date;
+            set
+            {
+                _date = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(DateDisplay));
+            }
+        }
+
+        public string DateDisplay
+        {
+            get
+            {
+                var formatted = Date.ToString("hh:mm dd/MM");
+                if (Date < DateTime.Now)
+                    formatted += " Expired";
+
+                return formatted;
+            }
+
         }
 
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)

@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)DatabaseManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IdGenerator.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Reminder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\SpellcheckModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Spellchecker.cs" />

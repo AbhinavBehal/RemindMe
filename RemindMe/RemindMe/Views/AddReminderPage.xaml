@@ -41,7 +41,20 @@
                 IsVisible="{Binding IsSpellchecking}"
                 IsRunning="{Binding IsSpellchecking}"/>
         </StackLayout>
-        
+
+        <Label
+            Text="When to remind"
+            TextColor="CornflowerBlue"/>
+        <StackLayout
+            Orientation="Horizontal">
+            <DatePicker
+                Format="dd/MM/yyyy"
+                Date="{Binding DateInput, Mode=TwoWay}"
+                MinimumDate="{Binding MinimumDate}"/>
+            <TimePicker
+                Time="{Binding TimeInput, Mode=TwoWay}"/>
+        </StackLayout>
+
         <Button
             Grid.Column="0"
             Text="{Binding SpellcheckLabel}"

@@ -1,4 +1,6 @@
-﻿using RemindMe.Models;
+﻿using LocalNotifications.Plugin;
+using LocalNotifications.Plugin.Abstractions;
+using RemindMe.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -22,6 +24,9 @@ namespace RemindMe.ViewModels
         private string _spellcheckLabel;
         private bool _canRevert;
         private bool _isSpellchecking;
+        private DateTime _dateInput;
+        private DateTime _minimumDate;
+        private TimeSpan _timeInput;
 
         public ICommand SubmitReminderCommand { get; private set; }
         public ICommand DeleteReminderCommand { get; private set; }
@@ -34,10 +39,18 @@ namespace RemindMe.ViewModels
             {
                 _titleInput = reminder.Title;
                 _descriptionInput = reminder.Description;
+                _dateInput = reminder.Date;
+                _timeInput = reminder.Date.TimeOfDay;
+            }
+            else
+            {
+                _dateInput = DateTime.Today;
+                _timeInput = TimeSpan.Zero;
             }
 
             _canRevert = false;
             _spellcheckLabel = "Spellcheck";
+            _minimumDate = DateTime.Today;
 
             SubmitReminderCommand = new Command(async () => await SubmitReminder());
             DeleteReminderCommand = new Command(async () => await DeleteReminder());
@@ -74,6 +87,36 @@ namespace RemindMe.ViewModels
             }
         }
 
+        public DateTime DateInput
+        {
+            get => _dateInput;
+            set
+            {
+                _dateInput = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public DateTime MinimumDate
+        {
+            get => _minimumDate;
+            set
+            {
+                _minimumDate = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public TimeSpan TimeInput
+        {
+            get => _timeInput;
+            set
+            {
+                _timeInput = value;
+                OnPropertyChanged();
+            }
+        }
+
         public string SpellcheckLabel
         {
             get => _spellcheckLabel;
@@ -101,12 +144,15 @@ namespace RemindMe.ViewModels
 
         private async Task SubmitReminder()
         {
+            var date = new DateTime(DateInput.Year, DateInput.Month, DateInput.Day, TimeInput.Hours, TimeInput.Minutes, TimeInput.Seconds);
+
             if(_reminder == null)
-                await DatabaseManager.Instance.PostReminder(new Reminder(TitleInput, DescriptionInput));
+                await DatabaseManager.Instance.PostReminder(new Reminder(TitleInput, DescriptionInput, date));
             else
             {
                 _reminder.Title = TitleInput;
                 _reminder.Description = DescriptionInput;
+                _reminder.Date = date;
                 await DatabaseManager.Instance.UpdateReminder(_reminder);
             }
             await Application.Current.MainPage.Navigation.PopAsync();

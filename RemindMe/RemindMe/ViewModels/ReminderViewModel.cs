@@ -1,4 +1,6 @@
-﻿using RemindMe.Models;
+﻿using LocalNotifications.Plugin;
+using LocalNotifications.Plugin.Abstractions;
+using RemindMe.Models;
 using RemindMe.Views;
 using System;
 using System.Collections.Generic;
@@ -17,6 +19,7 @@ namespace RemindMe.ViewModels
         public event PropertyChangedEventHandler PropertyChanged;
 
         private ObservableCollection<Reminder> _remindersList;
+        private List<LocalNotification> _notifications;
         private Reminder _selectedReminder;
         private bool _isRefreshing;
 
@@ -27,6 +30,8 @@ namespace RemindMe.ViewModels
         {
             AddReminderCommand = new Command(async () => await AddReminder());
             PullRemindersCommand = new Command(async () => await PullReminders());
+
+            _notifications = new List<LocalNotification>();
 
             DatabaseManager.Instance.InsertEvent += async () => await PullReminders();
             DatabaseManager.Instance.RemoveEvent += async () => await PullReminders();
@@ -91,7 +96,28 @@ namespace RemindMe.ViewModels
         {
             IsRefreshing = true;
             var result = await DatabaseManager.Instance.GetReminders();
+
             RemindersList = new ObservableCollection<Reminder>(result);
+
+            var notifier = CrossLocalNotifications.CreateLocalNotifier();
+            _notifications.ForEach(n => notifier.Cancel(n.Id));
+            IdGenerator.Clear();
+
+            foreach(Reminder r in RemindersList)
+            {
+                if (r.Date < DateTime.Now)
+                    continue;
+
+                var notification = new LocalNotification
+                {
+                    Title = r.Title,
+                    Text = r.Description,
+                    NotifyTime = r.Date,
+                    Id = IdGenerator.NextId
+                };
+                _notifications.Add(notification);
+                notifier.Notify(notification);
+            }
             IsRefreshing = false;
         }
     }
