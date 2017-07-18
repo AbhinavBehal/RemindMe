@@ -45,7 +45,7 @@ namespace RemindMe.ViewModels
             else
             {
                 _dateInput = DateTime.Today;
-                _timeInput = TimeSpan.Zero;
+                _timeInput = DateTime.Now.TimeOfDay;
             }
 
             _canRevert = false;

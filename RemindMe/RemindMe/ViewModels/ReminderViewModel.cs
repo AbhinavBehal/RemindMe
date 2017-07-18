@@ -28,15 +28,15 @@ namespace RemindMe.ViewModels
 
         public ReminderViewModel()
         {
-            AddReminderCommand = new Command(async () => await AddReminder());
+            AddReminderCommand = new Command(async () => await ShowAddPage());
             PullRemindersCommand = new Command(async () => await PullReminders());
 
             _notifications = new List<LocalNotification>();
 
+            PullRemindersCommand.Execute(null);
+
             DatabaseManager.Instance.InsertEvent += async () => await PullReminders();
             DatabaseManager.Instance.RemoveEvent += async () => await PullReminders();
-
-            PullRemindersCommand.Execute(null);
         }
 
         public bool IsRefreshing
@@ -59,7 +59,7 @@ namespace RemindMe.ViewModels
 
                 if(SelectedReminder != null)
                 {
-                    OpenEditPage();
+                    ShowEditPage();
                 }
             }
         }
@@ -75,18 +75,18 @@ namespace RemindMe.ViewModels
             }
         }
 
-        public async void OpenEditPage()
-        {
-            await Application.Current.MainPage.Navigation.PushAsync(new EditReminderPage(new ReminderDetailViewModel(SelectedReminder)));
-            SelectedReminder = null;
-        }
-
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private async Task AddReminder()
+        private async void ShowEditPage()
+        {
+            await Application.Current.MainPage.Navigation.PushAsync(new EditReminderPage(new ReminderDetailViewModel(SelectedReminder)));
+            SelectedReminder = null;
+        }
+
+        private async Task ShowAddPage()
         {
             await Application.Current.MainPage.Navigation.PushAsync(new AddReminderPage(new ReminderDetailViewModel(SelectedReminder)));
             SelectedReminder = null;

@@ -63,9 +63,9 @@ namespace RemindMe.Models
         {
             get
             {
-                var formatted = Date.ToString("hh:mm dd/MM");
+                var formatted = Date.ToString("hh:mm tt - dd/MM");
                 if (Date < DateTime.Now)
-                    formatted += " Expired";
+                    formatted += " EXPIRED";
 
                 return formatted;
             }
