@@ -6,10 +6,19 @@
              Title="RemindMe">
 
     <StackLayout>
-        <Button
-            HorizontalOptions="FillAndExpand"
-            Text="Add reminder"
-            Command="{Binding AddReminderCommand}"/>
+        <StackLayout
+            Orientation="Horizontal"
+            HorizontalOptions="FillAndExpand">
+            <Button
+                HorizontalOptions="FillAndExpand"
+                Text="Clear expired"
+                Command="{Binding ClearExpiredCommand}"/>
+            <Button
+                HorizontalOptions="FillAndExpand"
+                Text="Add reminder"
+                Command="{Binding AddReminderCommand}"/>
+        </StackLayout>
+        
         <ListView
             IsPullToRefreshEnabled="True"
             IsRefreshing="{Binding IsRefreshing}"

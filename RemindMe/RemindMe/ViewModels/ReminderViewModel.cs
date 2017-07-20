@@ -3,6 +3,7 @@ using LocalNotifications.Plugin.Abstractions;
 using RemindMe.Models;
 using RemindMe.Views;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -19,24 +20,27 @@ namespace RemindMe.ViewModels
         public event PropertyChangedEventHandler PropertyChanged;
 
         private ObservableCollection<Reminder> _remindersList;
-        private List<LocalNotification> _notifications;
+        private Dictionary<Reminder, LocalNotification> _notifications;
         private Reminder _selectedReminder;
         private bool _isRefreshing;
 
         public ICommand AddReminderCommand { get; private set; }
         public ICommand PullRemindersCommand { get; private set; }
+        public ICommand ClearExpiredCommand { get; private set; }
 
         public ReminderViewModel()
         {
             AddReminderCommand = new Command(async () => await ShowAddPage());
             PullRemindersCommand = new Command(async () => await PullReminders());
+            ClearExpiredCommand = new Command(async () => await ClearExpired());
 
-            _notifications = new List<LocalNotification>();
+            _notifications = new Dictionary<Reminder, LocalNotification>();
 
             PullRemindersCommand.Execute(null);
 
-            DatabaseManager.Instance.InsertEvent += async () => await PullReminders();
-            DatabaseManager.Instance.RemoveEvent += async () => await PullReminders();
+            DatabaseManager.Instance.InsertEvent += OnReminderAdded;
+            DatabaseManager.Instance.RemoveEvent += OnReminderDeleted;
+            DatabaseManager.Instance.UpdateEvent += OnReminderUpdated;
         }
 
         public bool IsRefreshing
@@ -92,6 +96,77 @@ namespace RemindMe.ViewModels
             SelectedReminder = null;
         }
 
+        private async Task ClearExpired()
+        {
+            IsRefreshing = true;
+            // Create a separate list as each DeleteReminder() call updates RemindersList while we're iterating
+            // which throws an exception
+            var list = RemindersList.ToList();
+            foreach (Reminder r in list)
+            {
+                if (r.Date < DateTime.Now)
+                    await DatabaseManager.Instance.DeleteReminder(r);
+            }
+            IsRefreshing = false;
+        }
+
+        private void OnReminderAdded(Reminder reminder)
+        {
+            RemindersList.Add(reminder);
+            if (reminder.Date < DateTime.Now) return;
+
+            var notification = new LocalNotification
+            {
+                Title = reminder.Title,
+                Text = reminder.Description,
+                NotifyTime = reminder.Date,
+                Id = IdGenerator.NextId
+            };
+            CrossLocalNotifications.CreateLocalNotifier().Notify(notification);
+            _notifications.Add(reminder, notification);
+        }
+
+        private void OnReminderDeleted(Reminder reminder)
+        { 
+            var result = RemindersList.Remove(reminder);
+            if (!_notifications.ContainsKey(reminder)) return;
+
+            CrossLocalNotifications.CreateLocalNotifier().Cancel(_notifications[reminder].Id);
+            _notifications.Remove(reminder);
+        }
+
+        private void OnReminderUpdated(Reminder reminder)
+        {
+            // Don't need to update RemindersList because of INotifyPropertyChanged on Reminder
+
+            var notification = new LocalNotification
+            {
+                Title = reminder.Title,
+                Text = reminder.Description,
+                NotifyTime = reminder.Date,
+                Id = IdGenerator.NextId
+            };
+            var notifier = CrossLocalNotifications.CreateLocalNotifier();
+
+
+            if(_notifications.ContainsKey(reminder)) // Cancel and update the current notification if its not expired
+            {
+                notifier.Cancel(_notifications[reminder].Id);
+                if (reminder.Date < DateTime.Now)
+                {
+                    _notifications.Remove(reminder);
+                    return;
+                }
+
+                _notifications[reminder] = notification;
+            }
+            else // Add a new notification
+            {
+                _notifications.Add(reminder, notification);
+            }
+            notifier.Notify(_notifications[reminder]);
+        }
+
         private async Task PullReminders()
         {
             IsRefreshing = true;
@@ -100,7 +175,11 @@ namespace RemindMe.ViewModels
             RemindersList = new ObservableCollection<Reminder>(result);
 
             var notifier = CrossLocalNotifications.CreateLocalNotifier();
-            _notifications.ForEach(n => notifier.Cancel(n.Id));
+            foreach(LocalNotification n in _notifications.Values)
+            {
+                notifier.Cancel(n.Id);
+            }
+            _notifications.Clear();
             IdGenerator.Clear();
 
             foreach(Reminder r in RemindersList)
@@ -115,7 +194,7 @@ namespace RemindMe.ViewModels
                     NotifyTime = r.Date,
                     Id = IdGenerator.NextId
                 };
-                _notifications.Add(notification);
+                _notifications.Add(r, notification);
                 notifier.Notify(notification);
             }
             IsRefreshing = false;
