@@ -52,7 +52,7 @@ namespace RemindMe.ViewModels
             _spellcheckLabel = "Spellcheck";
             _minimumDate = DateTime.Today;
 
-            SubmitReminderCommand = new Command(async () => await SubmitReminder());
+            SubmitReminderCommand = new Command(async () => await SubmitReminder(), () => !string.IsNullOrWhiteSpace(TitleInput));
             DeleteReminderCommand = new Command(async () => await DeleteReminder());
             SpellcheckCommand = new Command(async () => await Spellcheck());
         }
@@ -69,6 +69,7 @@ namespace RemindMe.ViewModels
                 }
                 _titleInput = value;
                 OnPropertyChanged();
+                ((Command)SubmitReminderCommand).ChangeCanExecute();
             }
         }
 
