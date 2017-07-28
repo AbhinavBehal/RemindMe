@@ -55,11 +55,6 @@ namespace RemindMe
             builder.Append(text.Substring(index, text.Length - index));
 
             return builder.ToString();
-
-            /*
-            //Simulate the api call
-            await Task.Delay(1000);
-            return text;*/
         }
     }
 }
